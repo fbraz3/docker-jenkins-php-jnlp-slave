@@ -33,7 +33,11 @@ RUN apt update && \
 RUN export DEBIAN_FRONTEND=noninteractive; apt-get install -yq mariadb-client
 
 ## Install composer
-RUN php -r "readfile('http://getcomposer.org/installer');" | php -- --2 --install-dir=/usr/local/bin/ --filename=composer
+RUN mkdir /opt/composer; \
+    cd /opt/composer && ( \
+        wget https://raw.githubusercontent.com/composer/getcomposer.org/master/web/installer -O - -q | php -- --quiet; \
+        ln -s /opt/composer/composer.phar /usr/local/bin/composer; \
+    )
 
 ## Install Symfony CLI
 RUN curl -sS https://get.symfony.com/cli/installer | bash
