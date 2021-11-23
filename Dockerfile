@@ -37,7 +37,10 @@ RUN apt update && \
 RUN export DEBIAN_FRONTEND=noninteractive; apt-get install -yq mariadb-client
 
 ## Install composer
-RUN mkdir /opt/composer; \
+RUN if [ $PHP_VERSION \> 7.3 ]; then \
+      apt-get install -yq libpcre2-8-0; \
+    fi; \
+    mkdir /opt/composer; \
     cd /opt/composer && ( \
         wget https://raw.githubusercontent.com/composer/getcomposer.org/master/web/installer -O - -q | php -- --quiet; \
         ln -s /opt/composer/composer.phar /usr/local/bin/composer; \
