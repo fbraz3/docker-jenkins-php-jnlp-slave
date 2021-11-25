@@ -7,7 +7,7 @@ Based on oficial jnlp docker hub image, so the same installation instructions ar
 ## DockerHub Page:
 https://hub.docker.com/repository/docker/fbraz3/jenkins-php-jnlp-slave/
 
-## Built-in PHP features:
+## Features:
 - Php-Cli
 - Xdebug
 - MySQL Client
