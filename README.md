@@ -13,7 +13,6 @@ https://hub.docker.com/repository/docker/fbraz3/jenkins-php-jnlp-slave/
 - MySQL Client
 - Git
 - unzip & unrar
-- Phalcon Framework (PHP 7.4 or lower)
 - Composer
 - Symphony Cli
 
