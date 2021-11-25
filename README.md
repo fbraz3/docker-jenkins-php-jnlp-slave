@@ -2,13 +2,11 @@
 
 It's a jenkins jnlp worker image to build php applications.
 
-DockerHub: 
+DockerHub Page: 
 
 https://hub.docker.com/repository/docker/fbraz3/jenkins-php-jnlp-slave/
 
-Based on oficial jnlp docker hub image, so the same installation instructions are applicable
-
-https://hub.docker.com/r/jenkins/jnlp-slave/
+Based on oficial jnlp docker hub image, so the same installation instructions are applicable, see dockerhub page above for more details.
 
 ## Source Code:
 https://github.com/fbraz3/docker-jenkins-php-jnlp-slave
