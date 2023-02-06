@@ -50,5 +50,7 @@ RUN if [ $PHP_VERSION \> 7.3 ]; then \
 RUN curl -sS https://get.symfony.com/cli/installer | bash
 RUN mv $HOME/.symfony5/bin/symfony /usr/local/bin/symfony
 
+## update agent.jar if required
+RUN if [ ! -z "$AGENT_URL" ]; then cd /usr/share/jenkins/ && curl -O $AGENT_URL ; fi
 
 USER jenkins
