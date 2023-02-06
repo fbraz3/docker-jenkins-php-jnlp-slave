@@ -48,6 +48,7 @@ RUN if [ $PHP_VERSION \> 7.3 ]; then \
 
 ## Install Symfony CLI
 RUN curl -sS https://get.symfony.com/cli/installer | bash
-RUN mv $HOME/.symfony/bin/symfony /usr/local/bin/symfony
+RUN mv $HOME/.symfony5/bin/symfony /usr/local/bin/symfony
+
 
 USER jenkins
