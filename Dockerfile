@@ -7,7 +7,7 @@ USER root
 #OS base packages
 RUN apt-get update; \
     export DEBIAN_FRONTEND=noninteractive; \
-    apt -y install lsb-release apt-transport-https ca-certificates wget zip unrar-free unzip curl less git gettext;
+    apt -yq install lsb-release apt-transport-https ca-certificates wget zip unrar-free unzip curl less git gettext;
 
 RUN wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg; \
     echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/php.list; \
