@@ -33,4 +33,4 @@ jobs:
           build-args: |
             PHP_VERSION=7.0
           tags: |
-            fbraz3/php-fpm:7.0
+            fbraz3/jenkins-php-jnlp-slave:7.0
