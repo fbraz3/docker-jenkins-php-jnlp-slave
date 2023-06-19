@@ -24,9 +24,9 @@ RUN export DEBIAN_FRONTEND=noninteractive; \
     php$PHP_VERSION-xmlrpc php$PHP_VERSION-zip php$PHP_VERSION-odbc php$PHP_VERSION-snmp \
     php$PHP_VERSION-interbase php$PHP_VERSION-ldap php$PHP_VERSION-tidy \
     php$PHP_VERSION-memcached php$PHP_VERSION-redis php$PHP_VERSION-imagick php$PHP_VERSION-mongodb; \
-    if [ $PHP_VERSION \< 8 ]; then \
-      apt-get install -yq php$PHP_VERSION-json; \
-    fi;
+#    if [ $PHP_VERSION \< 8 ]; then \
+#      apt-get install -yq php$PHP_VERSION-json; \
+#    fi;
 
 ## INSTALL xdebug
 RUN apt update && \
