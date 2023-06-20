@@ -1,6 +1,6 @@
 FROM jenkins/inbound-agent
 
-ARG PHP_VERSION=7.4
+ARG PHP_VERSION=8.2
 
 USER root
 
@@ -9,9 +9,11 @@ RUN apt-get update; \
     export DEBIAN_FRONTEND=noninteractive; \
     apt -yq install lsb-release apt-transport-https ca-certificates wget zip unrar-free unzip curl less git gettext;
 
-RUN wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg; \
-    echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/php.list; \
-    apt update;
+RUN apt-get update; \
+    export DEBIAN_FRONTEND=noninteractive; \
+    curl -sSLo /usr/share/keyrings/deb.sury.org-php.gpg https://packages.sury.org/php/apt.gpg; \
+    sh -c 'echo "deb [signed-by=/usr/share/keyrings/deb.sury.org-php.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list'; \
+    apt-get update
 
 ## php-base
 RUN export DEBIAN_FRONTEND=noninteractive; \
@@ -24,9 +26,9 @@ RUN export DEBIAN_FRONTEND=noninteractive; \
     php$PHP_VERSION-xmlrpc php$PHP_VERSION-zip php$PHP_VERSION-odbc php$PHP_VERSION-snmp \
     php$PHP_VERSION-interbase php$PHP_VERSION-ldap php$PHP_VERSION-tidy \
     php$PHP_VERSION-memcached php$PHP_VERSION-redis php$PHP_VERSION-imagick php$PHP_VERSION-mongodb; \
-#    if [ $PHP_VERSION \< 8 ]; then \
-#      apt-get install -yq php$PHP_VERSION-json; \
-#    fi;
+    if [ $PHP_VERSION \< 8 ]; then \
+      apt-get install -yq php$PHP_VERSION-json; \
+    fi;
 
 ## INSTALL xdebug
 RUN apt update && \
