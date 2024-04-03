@@ -28,6 +28,12 @@ RUN export DEBIAN_FRONTEND=noninteractive; \
     php$PHP_VERSION-memcached php$PHP_VERSION-redis php$PHP_VERSION-imagick php$PHP_VERSION-mongodb; \
     if [ $PHP_VERSION \< 8 ]; then \
       apt-get install -yq php$PHP_VERSION-json; \
+    fi; \
+    if [ $PHP_VERSION != 8.2 ]; then \
+      apt remove -fyq php8.2*; apt -fyq autoremove; \
+    fi; \
+    if [ $PHP_VERSION != 8.3 ]; then \
+      apt remove -fyq php8.3*; apt -fyq autoremove; \
     fi;
 
 ## INSTALL xdebug
