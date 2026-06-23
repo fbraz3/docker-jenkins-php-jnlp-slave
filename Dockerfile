@@ -1,64 +1,42 @@
-FROM jenkins/inbound-agent
-
 ARG PHP_VERSION=8.2
+FROM fbraz3/php-cli:$PHP_VERSION
+
+# Bring in the Jenkins agent binaries
+COPY --from=jenkins/inbound-agent /usr/share/jenkins/agent.jar /usr/share/jenkins/agent.jar
+COPY --from=jenkins/inbound-agent /usr/local/bin/jenkins-agent /usr/local/bin/jenkins-agent
 
 USER root
+ARG PHP_VERSION
 
-#OS base packages
-RUN apt-get update; \
-    export DEBIAN_FRONTEND=noninteractive; \
-    apt -yq install lsb-release apt-transport-https ca-certificates wget zip unrar-free unzip curl less git gettext;
+# Install Java and extra dependencies needed for Jenkins/Builds
+RUN apt-get update && \
+    export DEBIAN_FRONTEND=noninteractive && \
+    apt-get install -yq --no-install-recommends \
+        openjdk-17-jre-headless \
+        mariadb-client \
+        php$PHP_VERSION-xdebug && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update; \
-    export DEBIAN_FRONTEND=noninteractive; \
-    curl -sSLo /usr/share/keyrings/deb.sury.org-php.gpg https://packages.sury.org/php/apt.gpg; \
-    sh -c 'echo "deb [signed-by=/usr/share/keyrings/deb.sury.org-php.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list'; \
-    apt-get update
+# Install Composer
+RUN mkdir -p /opt/composer && \
+    curl -sS https://getcomposer.org/installer | php -- --install-dir=/opt/composer --filename=composer.phar && \
+    chmod +x /opt/composer/composer.phar && \
+    ln -sf /opt/composer/composer.phar /usr/local/bin/composer
 
-## php-base
-RUN export DEBIAN_FRONTEND=noninteractive; \
-    apt-get install -yq php$PHP_VERSION php$PHP_VERSION-cli \
-    php$PHP_VERSION-common php$PHP_VERSION-curl php$PHP_VERSION-fpm \
-    php$PHP_VERSION-mysql php$PHP_VERSION-opcache php$PHP_VERSION-readline \
-    php$PHP_VERSION-xml php$PHP_VERSION-xsl php$PHP_VERSION-gd php$PHP_VERSION-intl \
-    php$PHP_VERSION-bz2 php$PHP_VERSION-bcmath php$PHP_VERSION-imap php$PHP_VERSION-gd \
-    php$PHP_VERSION-mbstring php$PHP_VERSION-pgsql php$PHP_VERSION-sqlite3 \
-    php$PHP_VERSION-xmlrpc php$PHP_VERSION-zip php$PHP_VERSION-odbc php$PHP_VERSION-snmp \
-    php$PHP_VERSION-interbase php$PHP_VERSION-ldap php$PHP_VERSION-tidy \
-    php$PHP_VERSION-memcached php$PHP_VERSION-redis php$PHP_VERSION-imagick php$PHP_VERSION-mongodb; \
-    if [ $PHP_VERSION \< 8 ]; then \
-      apt-get install -yq php$PHP_VERSION-json; \
-    fi; \
-    if [ $PHP_VERSION != 8.2 ]; then \
-      apt remove -fyq php8.2*; apt -fyq autoremove; \
-    fi; \
-    if [ $PHP_VERSION != 8.3 ]; then \
-      apt remove -fyq php8.3*; apt -fyq autoremove; \
-    fi;
+# Install Symfony CLI
+RUN curl -sS https://get.symfony.com/cli/installer | bash && \
+    mv $HOME/.symfony5/bin/symfony /usr/local/bin/symfony
 
-## INSTALL xdebug
-RUN apt update && \
-    export DEBIAN_FRONTEND=noninteractive; \
-    apt-get install -yq php$PHP_VERSION-xdebug
+# Re-configure php user to jenkins user
+RUN usermod -l jenkins php && \
+    groupmod -n jenkins php && \
+    usermod -d /home/jenkins -m jenkins && \
+    chown -R jenkins:jenkins /home/jenkins
 
-## MySQL CLient
-RUN export DEBIAN_FRONTEND=noninteractive; apt-get install -yq mariadb-client
-
-## Install composer
-RUN if [ $PHP_VERSION \> 7.3 ]; then \
-      apt-get install -yq libpcre2-8-0; \
-    fi; \
-    mkdir /opt/composer; \
-    cd /opt/composer && ( \
-        wget https://raw.githubusercontent.com/composer/getcomposer.org/master/web/installer -O - -q | php -- --quiet; \
-        ln -s /opt/composer/composer.phar /usr/local/bin/composer; \
-    )
-
-## Install Symfony CLI
-RUN curl -sS https://get.symfony.com/cli/installer | bash
-RUN mv $HOME/.symfony5/bin/symfony /usr/local/bin/symfony
-
-# Ensure PHP version is the correct one
-RUN if [ $PHP_VERSION != $(php -v |head -n1 | awk '{print $2}' | awk -F'.' '{print $1"."$2}') ]; then exit 1; fi
+# Verify PHP version is correct
+RUN [ "$PHP_VERSION" = "$(php -r 'echo PHP_MAJOR_VERSION,chr(46),PHP_MINOR_VERSION;')" ]
 
 USER jenkins
+
+ENTRYPOINT ["/usr/local/bin/jenkins-agent"]
